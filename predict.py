@@ -12,9 +12,9 @@ CLASSES = ["person", "car", "dog", "cat", "chair"]
 
 # Anchors (khớp 100% với dataset.py)
 ANCHORS_CFG = {
-    'large':  [(0.05, 0.05), (0.08, 0.08), (0.12, 0.12)],   # grid 28x28
-    'medium': [(0.15, 0.15), (0.25, 0.25), (0.35, 0.35)],   # grid 14x14
-    'small':  [(0.40, 0.40), (0.55, 0.55), (0.70, 0.70)],   # grid 7x7
+    'large':  [(0.05, 0.05), (0.08, 0.08), (0.12, 0.12)],   # grid 60x60 (stride 8)
+    'medium': [(0.15, 0.15), (0.25, 0.25), (0.35, 0.35)],   # grid 30x30 (stride 16)
+    'small':  [(0.40, 0.40), (0.55, 0.55), (0.70, 0.70)],   # grid 15x15 (stride 32)
 }
 
 
@@ -63,7 +63,7 @@ def decode_multiscale_predictions(
         # ── Decode tọa độ tâm ──────────────────────────────────────
         x_cell   = torch.sigmoid(filtered_pred[:, 0])
         y_cell   = torch.sigmoid(filtered_pred[:, 1])
-        x_center = (j_idx + x_cell) / W   # [0,1] trong ảnh 224
+        x_center = (j_idx + x_cell) / W   # [0,1] trong ảnh 480
         y_center  = (i_idx + y_cell) / H
 
         # ── Decode kích thước (anchor * exp(pred)) ─────────────────
@@ -75,11 +75,11 @@ def decode_multiscale_predictions(
         tw = torch.clamp(filtered_pred[:, 2], min=-4.0, max=4.0)
         th = torch.clamp(filtered_pred[:, 3], min=-4.0, max=4.0)
 
-        w_norm = anchor_w * torch.exp(tw)   # normalized [0,1] trên 224px
+        w_norm = anchor_w * torch.exp(tw)   # normalized [0,1] trên 480px
         h_norm = anchor_h * torch.exp(th)
 
-        # ── Quy đổi về tọa độ pixel trong ảnh 224x224 ─────────────
-        IMG = 224.0
+        # ── Quy đổi về tọa độ pixel trong ảnh 480x480 ─────────────
+        IMG = 480
         x_px = x_center * IMG
         y_px  = y_center  * IMG
         w_px  = w_norm    * IMG
@@ -167,13 +167,13 @@ def main(args):
             orig_w, orig_h = image.size
 
             # Letterbox
-            sc     = 224 / max(orig_w, orig_h)
+            sc     = 480 / max(orig_w, orig_h)
             new_w  = int(orig_w * sc)
             new_h  = int(orig_h * sc)
             img_r  = image.resize((new_w, new_h), Image.Resampling.BILINEAR)
-            pad_l  = (224 - new_w) // 2
-            pad_t  = (224 - new_h) // 2
-            canvas = Image.new("RGB", (224, 224), (128, 128, 128))
+            pad_l  = (480 - new_w) // 2
+            pad_t  = (480 - new_h) // 2
+            canvas = Image.new("RGB", (480, 480), (128, 128, 128))
             canvas.paste(img_r, (pad_l, pad_t))
 
             img_t = TF.to_tensor(canvas)

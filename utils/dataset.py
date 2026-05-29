@@ -16,7 +16,7 @@ class CustomDetectionDataset(Dataset):
       - Encode target nhất quán với loss.py và predict.py
     """
 
-    def __init__(self, json_path, img_dir, img_size=224, is_train=True):
+    def __init__(self, json_path, img_dir, img_size=480, is_train=True):
         self.img_dir  = img_dir
         self.is_train = is_train
         self.img_size = img_size
@@ -37,12 +37,13 @@ class CustomDetectionDataset(Dataset):
         self.image_ids = list(self.img_data.keys())
 
         # Grid và anchors (khớp predict.py và loss.py)
-        self.grids       = [28, 14, 7]
+        # img_size=480: stride 8→60x60, stride 16→30x30, stride 32→15x15
+        self.grids       = [60, 30, 15]
         self.num_anchors = 3
         self.anchors = torch.tensor([
-            [0.05, 0.05], [0.08, 0.08], [0.12, 0.12],   # scale large (grid 28)
-            [0.15, 0.15], [0.25, 0.25], [0.35, 0.35],   # scale medium (grid 14)
-            [0.40, 0.40], [0.55, 0.55], [0.70, 0.70],   # scale small  (grid 7)
+            [0.05, 0.05], [0.08, 0.08], [0.12, 0.12],   # scale large (grid 60x60, stride 8)
+            [0.15, 0.15], [0.25, 0.25], [0.35, 0.35],   # scale medium (grid 30x30, stride 16)
+            [0.40, 0.40], [0.55, 0.55], [0.70, 0.70],   # scale small  (grid 15x15, stride 32)
         ])
 
     def __len__(self):
