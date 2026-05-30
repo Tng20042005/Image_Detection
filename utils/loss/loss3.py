@@ -14,7 +14,7 @@ class YoloLoss(nn.Module):
 
         # Cân bằng lại trọng số: Giảm nhẹ lambda_noobj để mô hình "mạnh dạn" predict hơn
         self.lambda_class  = 1.0
-        self.lambda_obj    = 4.0   # Tăng từ 3 -> 4 để kéo Recall lên
+        self.lambda_obj    = 20.0   # Tăng từ 3 -> 4 để kéo Recall lên
         self.lambda_noobj  = 1.0   # Giảm từ 2.0 -> 1.0 để thả xích cho mô hình
         self.lambda_box    = 5.0
 
