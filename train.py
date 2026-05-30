@@ -22,12 +22,12 @@ def main(args):
 
     train_loader = DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True,
-        num_workers=4, pin_memory=True, drop_last=True,
+        num_workers=args.num_workers, pin_memory=True, drop_last=True,
         collate_fn=collate_fn
     )
     val_loader = DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False,
-        num_workers=4, pin_memory=True,
+        num_workers=args.num_workers, pin_memory=True,
         collate_fn=collate_fn
     )
 
@@ -52,16 +52,9 @@ def main(args):
     ], weight_decay=1e-4)
 
     # ── 4. SCHEDULER: Warmup + Cosine ───────────────────────────────────
-    WARMUP_EPOCHS = 5
+    WARMUP_EPOCHS = 5    
 
-    def lr_lambda(epoch):
-        if epoch < WARMUP_EPOCHS:
-            return (epoch + 1) / WARMUP_EPOCHS   # linear warmup
-        # Cosine annealing sau warmup
-        progress = (epoch - WARMUP_EPOCHS) / max(args.epochs - WARMUP_EPOCHS, 1)
-        return 0.5 * (1.0 + torch.cos(torch.tensor(3.14159 * progress)).item())
-
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs - WARMUP_EPOCHS)
 
     # ── 5. AMP ──────────────────────────────────────────────────────────
     scaler = GradScaler('cuda') if device.type == 'cuda' else None
@@ -190,13 +183,14 @@ def collate_fn(batch):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--train_data',     type=str, required=True)
-    parser.add_argument('--val_data',       type=str, required=True)
-    parser.add_argument('--image_dir',      type=str, required=True)
-    parser.add_argument('--val_image_dir',  type=str, required=True)
-    parser.add_argument('--checkpoint_dir', type=str, required=True)
+    parser.add_argument('--train_data',     type=str, default="public/annotations/train.json")
+    parser.add_argument('--val_data',       type=str, default="public/annotations/val.json")
+    parser.add_argument('--image_dir',      type=str, default="public/train/images/")
+    parser.add_argument('--val_image_dir',  type=str, default="public/val/images/")
+    parser.add_argument('--checkpoint_dir', type=str, default="models/")
     parser.add_argument('--epochs',         type=int,   default=100)
-    parser.add_argument('--batch_size',     type=int,   default=16)
-    parser.add_argument('--lr',             type=float, default=3e-4)
+    parser.add_argument('--batch_size',     type=int,   default=32)
+    parser.add_argument('--lr',             type=float, default=5e-4)
+    parser.add_argument('--num_workers',    type=int,   default=16)
     args = parser.parse_args()
     main(args)

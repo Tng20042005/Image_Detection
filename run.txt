@@ -1,0 +1,7 @@
+python train.py --train_data public/annotations/train.json --val_data public/annotations/val.json --image_dir public/train/images --val_image_dir public/val/images --checkpoint_dir models --epochs 50 --batch_size 16 --lr 0.0001
+
+
+python predict.py   --image_dir ./public/val/images   --output predictions.json
+
+
+python public/tools/evaluate_predictions.py   --ground_truth public/annotations/val.json   --predictions predictions.json   --output val_score.json

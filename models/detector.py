@@ -1,7 +1,7 @@
 from arch.efficientnet_b0 import YOLO_EfficientNetB0
 from arch.resnet34 import YOLO_ResNet34
 
-def YOLO_Lite(arch="resnet34", num_classes=5):
+def YOLO_Lite(arch="efficientnet_b0", num_classes=5):
     """
     Hàm Factory giúp khởi tạo mạng động.
     Các script train.py và predict.py vẫn gọi YOLO_Lite() như cũ mà không bị lỗi.

@@ -1,1 +1,0 @@
-loss_train: 1.84    val_train: 1.96

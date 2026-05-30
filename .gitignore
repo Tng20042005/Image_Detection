@@ -1,2 +1,7 @@
 public/
 trained_models/
+models/
+prediction_output/
+ultis/loss/val_score_json/
+val_score_output/
+__pycache__/
